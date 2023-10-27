@@ -77,8 +77,7 @@ in
               ]));
           in
           ''
-            mkdir -p /usr/lib/
-            mount --bind ${config.systemd.package}/lib /usr/lib
+            PATH=/run/wrappers/bin:${lib.makeBinPath [ pkgs.coreutils ]}
             set -eux
 
             scratch=$(mktemp -d -t tmp.XXXXXXXXXX)
@@ -96,8 +95,6 @@ in
               --toplevel="$1" \
               $([ ! -z ''${NIXOS_INSTALL_BOOTLOADER+x} ] && echo --install) \
               ${installerArgs}
-
-            umount /usr/lib
           ''
         );
     };
