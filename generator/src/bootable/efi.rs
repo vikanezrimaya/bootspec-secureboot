@@ -35,6 +35,7 @@ impl EfiProgram {
                 &format!("--cmdline=@{}", kernel_params.path().display()),
                 &format!("--os-release=@{}/etc/os-release", generation_path.display()),
                 &format!("--output={}", outpath.display().to_string()),
+                &format!("--stub={}", stub.display()),
             ])
             .status()?;
 
