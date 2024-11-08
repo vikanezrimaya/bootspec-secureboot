@@ -18,7 +18,7 @@ mod plan;
 mod version;
 
 lazy_static::lazy_static! {
-    static ref ENTRY_RE: Regex = Regex::new("nixos-(?:(?P<profile>[^-]+)-)?generation-(?P<generation>\\d+).conf").unwrap();
+    static ref ENTRY_RE: Regex = Regex::new("nixos-(?:(?P<profile>[^-]+)-)?generation-(?P<generation>\\d+)(-(?P<specialisation>.+))?.conf").unwrap();
 }
 
 pub(crate) fn install(args: Args) -> Result<()> {
