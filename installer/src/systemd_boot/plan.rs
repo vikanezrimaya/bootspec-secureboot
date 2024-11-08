@@ -445,6 +445,7 @@ mod tests {
             Generation {
                 idx: 1,
                 profile: None,
+                specialisation: None,
                 path: PathBuf::from("1"),
                 required_filenames: vec![
                     OsString::from("nixos-generation-1.conf"),
@@ -455,6 +456,7 @@ mod tests {
             Generation {
                 idx: 2,
                 profile: None,
+                specialisation: None,
                 path: PathBuf::from("2"),
                 required_filenames: vec![
                     OsString::from("nixos-generation-2.conf"),
@@ -468,6 +470,7 @@ mod tests {
         let default_generation = Generation {
             idx: 2,
             profile: None,
+            specialisation: None,
             path: PathBuf::from("2"),
             required_filenames: vec![
                 OsString::from("nixos-generation-2.conf"),

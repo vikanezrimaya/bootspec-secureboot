@@ -20,6 +20,7 @@ const STORE_HASH_LEN: usize = 32;
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Generation {
     pub idx: usize,
+    pub specialisation: Option<String>,
     pub profile: Option<String>,
     pub path: PathBuf,
     pub required_filenames: Vec<OsString>,
@@ -88,13 +89,51 @@ pub fn all_generations(profile: Option<String>, unified: bool) -> Result<Vec<Gen
 
         generations.push(Generation {
             idx,
+            specialisation: None,
             profile: profile.clone(),
-            path,
+            path: path.clone(),
             required_filenames,
         });
+
+        for specialisation in std::fs::read_dir(path.join("specialisation"))? {
+            let specialisation = specialisation?;
+            let path = specialisation.path();
+            let name = specialisation.file_name().into_string().unwrap();
+
+            let conf_filename = if let Some(profile) = &profile {
+                format!("nixos-{}-generation-{}-{}.conf", profile, idx, name)
+            } else {
+                format!("nixos-generation-{}-{}.conf", idx, name)
+            };
+
+            let required_filenames = if unified {
+                let path = fs::canonicalize(&path)?;
+                let filename = format!(
+                    "{}.efi",
+                    &path.display().to_string().replace(STORE_PATH_PREFIX, "")[..STORE_HASH_LEN]
+                );
+
+                vec![filename.into(), conf_filename.into()]
+            } else {
+                let kernel_path = fs::canonicalize(path.join("kernel"))?;
+                let kernel_filename = self::store_path_to_efi_filename(kernel_path)?;
+                let initrd_path = fs::canonicalize(path.join("initrd"))?;
+                let initrd_filename = self::store_path_to_efi_filename(initrd_path)?;
+
+                vec![kernel_filename, initrd_filename, conf_filename.into()]
+            };
+
+            generations.push(Generation {
+                idx,
+                specialisation: Some(name),
+                profile: profile.clone(),
+                path: path.clone(),
+                required_filenames,
+            });
+        }
     }
 
-    generations.sort_by(|a, b| a.idx.cmp(&b.idx));
+    generations.sort_by(|a, b| a.idx.cmp(&b.idx).then_with(|| a.specialisation.cmp(&b.specialisation)));
 
     Ok(generations)
 }
