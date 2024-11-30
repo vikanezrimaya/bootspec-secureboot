@@ -9,10 +9,12 @@ in
       signingKeyPath = lib.mkOption {
         type = types.nullOr types.str;
         default = null;
+        description = "Path to the db private key.";
       };
       signingCertPath = lib.mkOption {
         type = types.nullOr types.str;
         default = null;
+        description = "Path to the db public key.";
       };
     };
   };
