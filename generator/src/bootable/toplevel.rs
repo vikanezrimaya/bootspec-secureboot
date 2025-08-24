@@ -18,7 +18,7 @@ pub struct BootableToplevel {
     /// Path to the init script
     pub init: PathBuf,
     /// Path to initrd -- $toplevel/initrd
-    pub initrd: PathBuf,
+    pub initrd: Option<PathBuf>,
     /// config.system.build.toplevel path
     pub toplevel: SystemConfigurationRoot,
     /// Specialisation name (if a specialisation)

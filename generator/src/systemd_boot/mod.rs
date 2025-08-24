@@ -140,15 +140,16 @@ fn linux_entry_impl(toplevel: &BootableToplevel, machine_id: &str) -> Result<(St
             .replace(STORE_PATH_PREFIX, "")
             .replace("/", "-")
     );
-    let initrd = format!(
-        "/EFI/nixos/{}.efi",
-        toplevel
-            .initrd
-            .display()
-            .to_string()
-            .replace(STORE_PATH_PREFIX, "")
-            .replace("/", "-")
-    );
+    let initrd = toplevel.initrd.as_ref().map(|initrd| {
+        format!(
+            "/EFI/nixos/{}.efi",
+            initrd
+                .display()
+                .to_string()
+                .replace(STORE_PATH_PREFIX, "")
+                .replace("/", "-")
+        )
+    });
 
     let title = toplevel.title();
     let version = toplevel.version()?;
@@ -156,15 +157,17 @@ fn linux_entry_impl(toplevel: &BootableToplevel, machine_id: &str) -> Result<(St
         r#"title {title}
 version {version}
 linux {linux}
-initrd {initrd}
-options init={init} {params}
+{initrd_line}options init={init} {params}
 machine-id {machine_id}
 
 "#,
         title = title,
         version = version,
         linux = linux,
-        initrd = initrd,
+        initrd_line = initrd
+            .as_ref()
+            .map(|initrd| format!("initrd {initrd}\n"))
+            .unwrap_or_default(),
         init = toplevel.init.display(),
         params = toplevel.kernel_params.join(" "),
         machine_id = machine_id,
@@ -172,15 +175,15 @@ machine-id {machine_id}
 
     let conf_path = self::conf_path(profile, specialisation, generation);
     let kernel_dest = format!("{}/{}", ROOT, linux);
-    let initrd_dest = format!("{}/{}", ROOT, initrd);
+    let initrd_dest = initrd.map(|initrd| format!("{}/{}", ROOT, initrd));
     let entry = (
         conf_path,
         Contents {
             conf: data,
             kernel_src: Some(toplevel.kernel.clone()),
             kernel_dest: Some(kernel_dest),
-            initrd_src: Some(toplevel.initrd.clone()),
-            initrd_dest: Some(initrd_dest),
+            initrd_src: toplevel.initrd.clone(),
+            initrd_dest: initrd_dest,
             ..Default::default()
         },
     );

@@ -37,7 +37,7 @@
       packages = forAllSystems
         ({ system, pkgs, ... }:
           rec {
-            package = pkgs.rustPlatform.buildRustPackage rec {
+            package = pkgs.rustPlatform.buildRustPackage {
               pname = "bootspec-secureboot";
               version = "unreleased";
 
@@ -46,7 +46,7 @@
               cargoLock = {
                 lockFile = ./Cargo.lock;
                 outputHashes = {
-                  "bootspec-0.1.0" = "sha256-pQGUqc4ZgGsF08imir0KUbiDOAHRDtawrUIY9QHtgs4=";
+                  "bootspec-1.0.1" = "sha256-DLJ0JR4WfBCG24UFW9qiJle1D4avxTzP5uyx0+AeAYw=";
                 };
               };
 

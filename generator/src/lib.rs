@@ -10,7 +10,7 @@ pub mod bootable;
 pub mod grub;
 pub mod systemd_boot;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Generation {
     pub index: usize,
     pub profile: Option<String>,
@@ -37,7 +37,12 @@ pub fn get_json(generation_path: PathBuf) -> Result<BootJson> {
     }
 
     if json.is_none() {
-        json = Some(GenerationV1::synthesize(&generation_path)?);
+        json = Some(BootJson {
+            generation: bootspec::generation::Generation::V1(GenerationV1::synthesize(
+                &generation_path,
+            )?),
+            extensions: Default::default(),
+        });
     }
 
     Ok(json.unwrap())

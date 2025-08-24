@@ -35,6 +35,12 @@ fn flatten_impl(
     let mut toplevels = Vec::new();
 
     for input in inputs {
+        let generation_index = input.index;
+        let profile_name = input.profile.clone();
+        let input: bootspec::v1::GenerationV1 = match input.bootspec.generation {
+            bootspec::generation::Generation::V1(input) => input,
+            _ => panic!("unsupported generation version!"),
+        };
         let toplevel = input.bootspec.toplevel.clone();
 
         toplevels.push(BootableToplevel {
@@ -45,26 +51,29 @@ fn flatten_impl(
             initrd: input.bootspec.initrd,
             toplevel,
             specialisation_name: specialisation_name.clone(),
-            generation_index: input.index,
-            profile_name: input.profile.clone(),
+            generation_index,
+            profile_name: profile_name.clone(),
         });
 
-        for (name, desc) in input.bootspec.specialisation {
+        for (name, desc) in input.specialisations {
             writeln!(
                 io::stderr(),
                 "Flattening specialisation '{name}' of toplevel {toplevel}: {path}",
                 toplevel = input.bootspec.toplevel.0.display(),
                 name = name.0,
-                path = desc.toplevel.0.display()
+                path = desc.bootspec.toplevel.0.display()
             )?;
 
-            let gen = Generation {
-                index: input.index,
-                profile: input.profile.clone(),
-                bootspec: desc,
+            let generation = Generation {
+                index: generation_index,
+                profile: profile_name.clone(),
+                bootspec: bootspec::BootJson {
+                    generation: bootspec::generation::Generation::V1(desc),
+                    extensions: Default::default(),
+                },
             };
 
-            toplevels.extend(self::flatten_impl(vec![gen], Some(name))?);
+            toplevels.extend(self::flatten_impl(vec![generation], Some(name))?);
         }
     }
 
