@@ -30,6 +30,7 @@
             codespell
             nixpkgs-fmt
             rustfmt
+            rust-analyzer
           ];
         });
 
