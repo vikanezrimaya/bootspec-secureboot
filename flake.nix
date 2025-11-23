@@ -65,7 +65,7 @@
         imports = [ ./nixos-module.nix ];
         nixpkgs.overlays = [
           (final: prev: {
-            bootspec-secureboot = self.defaultPackage."${final.system}";
+            bootspec-secureboot = self.defaultPackage."${final.stdenv.targetPlatform.system}";
           })
         ];
       };
